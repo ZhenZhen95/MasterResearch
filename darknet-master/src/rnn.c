@@ -157,7 +157,7 @@ void train_char_rnn(char *cfgfile, char *weightfile, char *filename, int clear, 
     int steps = net.time_steps;
     if (clear) {
         *net.seen = 0;
-        *net.cur_iteration =0;
+        *net.cur_iteration = 0;
     }
     int i = (*net.seen)/net.batch;
 

@@ -181,7 +181,9 @@ ious delta_yolo_box(box truth, float *x, float *biases, int n, int index, int i,
         delta[index + 3 * stride] += scale * (th - x[index + 3 * stride]) * iou_normalizer;
     }
     else {
-
+        // https://github.com/generalized-iou/g-darknet
+        // https://arxiv.org/abs/1902.09630v2
+        // https://giou.stanford.edu/
         all_ious.dx_iou = dx_box_iou(pred, truth, iou_loss);
 
         // jacobian^t (transpose)
