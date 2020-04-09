@@ -15,7 +15,6 @@ typedef int (*__compar_fn_t)(const void*, const void*);
 typedef __compar_fn_t comparison_fn_t;
 #endif
 #endif
-
 #include "http_stream.h"
 
 int check_mistakes = 0;
@@ -77,7 +76,10 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
         if (weightfile) {
             load_weights(&nets[k], weightfile);
         }
-        if (clear) *nets[k].seen = 0;
+        if (clear) {
+            *nets[k].seen = 0;
+            *nets[k].cur_iteration = 0；
+        }
         nets[k].learning_rate *= ngpus;
     }
     srand(time(0));
