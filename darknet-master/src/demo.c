@@ -14,23 +14,26 @@
 #else
 #include <sys/time.h>
 #endif
-
+//...............
+#define SAVEVIDEO
+//.............
 
 #ifdef OPENCV
-
-#include "http_stream.h"
+//.........
+#ifdef SAVEVIDEO
+    static CvVideoWriter *mVideoWriter;
+#endif
+//...........
+//#include "http_stream.h"
 
 static char **demo_names;
 static image **demo_alphabet;
 static int demo_classes;
-
 static int nboxes = 0;
 static detection *dets = NULL;
-
 static network net;
 static image in_s ;
 static image det_s;
-
 static cap_cv *cap;
 static float fps = 0;
 static float demo_thresh = 0;
