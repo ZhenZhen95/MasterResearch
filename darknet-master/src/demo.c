@@ -55,6 +55,55 @@ mat_cv* show_img;
 static volatile int flag_exit;
 static int letter_box = 0;
 
+//...............
+detection *get_network_boxes(network *net, int w, int h, float thresh, float hier, int *map, int relative, int *num);
+
+int size_network(network *net)
+{
+    int i;
+    int count = 0;
+    for(i = 0; i < net->n; ++i){
+        layer l = net->layers[i];
+        if(l.type == YOLO || l.type == REGION || l.type == DETECTION){
+            count += l.outputs;
+        }
+    }
+    return count;
+}
+
+void remember_network(network *net)
+{
+    int i;
+    int count = 0;
+    for(i = 0; i < net->n; ++i){
+        layer l = net->layers[i];
+        if(l.type == YOLO || l.type == REGION || l.type == DETECTION){
+            memcpy(predictions[demo_index] + count, net->layers[i].output, sizeof(float) * l.outputs);
+            count += l.outputs;
+        }
+    }
+}
+
+detection *avg_predictions(network *net, int *nboxes)
+{
+    int i, j;
+    int count = 0;
+    fill_cpu(demo_total, 0, avg, 1);
+    for(j = 0; j < demo_frame; ++j){
+        axpy_cpu(demo_total, 1./demo_frame, predictions[j], 1, avg, 1);
+    }
+    for(i = 0; i < net->n; ++i){
+        layer l = net->layers[i];
+        if(l.type == YOLO || l.type == REGION || l.type == DETECTION){
+            memcpy(l.output, avg + count, sizeof(float) * l.outputs);
+            count += l.outputs;
+        }
+    }
+    detection *dets = get_network_boxes(net, buff[0].w, buff[0].h, demo_thresh, demo_hier, 0, 1, nboxes);
+    return dets;
+}
+//...................
+
 void *fetch_in_thread(void *ptr)
 {
     int dont_close_stream = 0;    // set 1 if your IP-camera periodically turns off and turns on video-stream
