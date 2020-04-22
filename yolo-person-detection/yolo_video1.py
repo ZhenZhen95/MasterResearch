@@ -19,12 +19,14 @@ configPath = "yolo-coco/yolov3.cfg"
 # and determine only the *output* layer names that we need from YOLO
 print("[INFO] loading YOLO from disk...")
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
+net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
+net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 ln = net.getLayerNames()
 ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 # initialize the video stream, pointer to output video file, and
 # frame dimensions
-vs = cv2.VideoCapture("videos/car_chase_01.mp4")
+vs = cv2.VideoCapture("videos/test.mp4")
 writer = None
 (W, H) = (None, None)
 

@@ -17,6 +17,9 @@ configPath = "yolo-coco/yolov3.cfg"
 # load our YOLO object detector trained on COCO dataset (80 classes)
 print("[INFO] loading YOLO from disk...")
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
+# opencv在gpu上测试，没有gpu自动切换到cpu
+net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
+net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 
 # load our input image and grab its spatial dimensions
 image = cv2.imread("images/daming.jpg")
