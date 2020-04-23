@@ -27,7 +27,8 @@ ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 # initialize the video stream, pointer to output video file, and
 # frame dimensions
-cap = cv2.VideoCapture("videos/test01.mp4")
+cap = cv2.VideoCapture("videos/test.mp4")
+writer = None
 (W, H) = (None, None)
 
 # try to determine the total number of frames in the video file
@@ -123,8 +124,22 @@ while True:
         if cv2.waitKey(30) & 0xFF == ord('q'):
             break
 
+        if writer is None:
+            # initialize our video writer
+            fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+            writer = cv2.VideoWriter("output/videos.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
+
+            # some information on processing single frame
+            if total > 0:
+                elap = (end - start)
+                print("[INFO] single frame took {:.4f} seconds".format(elap))
+                print("[INFO] estimated total time to finish: {:.4f}".format(elap * total))
+
         # update the FPS counter
         fps.update()
+
+        # write the output frame to disk
+        writer.write(frame)
 
     else:
         break
@@ -133,6 +148,9 @@ while True:
 fps.stop()
 print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
 print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+print("[INFO] cleaning up...")
+cap.release()
 
+writer.release()
 cap.release()
 cv2.destroyAllWindows()

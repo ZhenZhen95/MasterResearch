@@ -19,6 +19,7 @@ configPath = "yolo-coco/yolov3.cfg"
 # and determine only the *output* layer names that we need from YOLO
 print("[INFO] loading YOLO from disk...")
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
+# 无GPU自动切换CPU
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 ln = net.getLayerNames()
@@ -127,8 +128,7 @@ while True:
     if writer is None:
         # initialize our video writer
         fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-        writer = cv2.VideoWriter("output/videos.avi", fourcc, 30,
-                                 (frame.shape[1], frame.shape[0]), True)
+        writer = cv2.VideoWriter("output/videos.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
 
         # some information on processing single frame
         if total > 0:
