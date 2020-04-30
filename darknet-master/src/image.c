@@ -1460,6 +1460,7 @@ void test_resize(char *filename)
 #endif
 }
 
+
 image load_image_stb(char *filename, int channels)
 {
     int w, h, c;

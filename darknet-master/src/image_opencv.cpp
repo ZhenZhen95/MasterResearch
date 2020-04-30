@@ -13,27 +13,27 @@
 #include <algorithm>
 #include <atomic>
 
-#include <opencv2/core/version.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/opencv.hpp>
-#include <opencv2/opencv_modules.hpp>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/core/version.hpp>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/imgproc/imgproc.hpp>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/opencv.hpp>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/opencv_modules.hpp>
 
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/video/video.hpp>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/highgui/highgui.hpp>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/video/video.hpp>
 
 // includes for OpenCV >= 3.x
 #ifndef CV_VERSION_EPOCH
-#include <opencv2/core/types.hpp>
-#include <opencv2/videoio/videoio.hpp>
-#include <opencv2/imgcodecs/imgcodecs.hpp>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/core/types.hpp>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/videoio/videoio.hpp>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/imgcodecs/imgcodecs.hpp>
 #endif
 
 // OpenCV includes for OpenCV 2.x
 #ifdef CV_VERSION_EPOCH
-#include <opencv2/highgui/highgui_c.h>
-#include <opencv2/imgproc/imgproc_c.h>
-#include <opencv2/core/types_c.h>
-#include <opencv2/core/version.hpp>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/highgui/highgui_c.h>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/imgproc/imgproc_c.h>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/core/types_c.h>
+#include <C:\Users\ENeS\opencv\build\include\opencv2/core/version.hpp>
 #endif
 
 //using namespace cv;
@@ -1507,7 +1507,7 @@ void show_opencv_info()
 #else  // OPENCV
 extern "C" void show_opencv_info()
 {
-    std::cerr << " OpenCV isn't used - data increase will run slowly \n";
+    std::cerr << " OpenCV isn't used - data augmentation will be slow \n";
 }
 extern "C" int wait_key_cv(int delay) { return 0; }
 extern "C" int wait_until_press_key_cv() { return 0; }

@@ -1471,7 +1471,6 @@ void *load_threads(void *ptr)
     int total = args.n;
     free(ptr);
     data* buffers = (data*)xcalloc(args.threads, sizeof(data));
-
     if (!threads) {
         threads = (pthread_t*)xcalloc(args.threads, sizeof(pthread_t));
         run_load_data = (volatile int *)xcalloc(args.threads, sizeof(int));
@@ -1498,7 +1497,8 @@ void *load_threads(void *ptr)
     for (i = 0; i < args.threads; ++i) {
         while (custom_atomic_load_int(&run_load_data[i])) this_thread_sleep_for(thread_wait_ms); //   join
     }
-/*
+
+    /*
     pthread_t* threads = (pthread_t*)xcalloc(args.threads, sizeof(pthread_t));
     for(i = 0; i < args.threads; ++i){
         args.d = buffers + i;
