@@ -27,8 +27,15 @@ print("[INFO] loading YOLO from disk...")
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
-ln = net.getLayerNames()
-ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
+
+# ln = net.getLayerNames()
+# ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
+def getOutputsNames(net):
+    layersNames = net.getLayerNames()
+    return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
 
 # initialize the video stream, pointer to output video file, and
 # frame dimensions
@@ -79,11 +86,6 @@ while True:
         start = time.time()
 
 
-        def getOutputsNames(net):
-            layersNames = net.getLayerNames()
-            return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-
-
         def postprocess(frame, outs):
             frameHeight = frame.shape[0]
             frameWidth = frame.shape[1]
@@ -112,17 +114,23 @@ while True:
                         # actually returns the center (x, y)-coordinates of
                         # the bounding box followed by the boxes' width and
                         # height
-                        box = detection[0:4] * np.array([W, H, W, H])
-                        (centerX, centerY, width, height) = box.astype("int")
+
+                        # box = detection[0:4] * np.array([W, H, W, H])
+                        # (centerX, centerY, width, height) = box.astype("int")
+
+                        centerX = int(detection[0] * frameWidth)
+                        centerY = int(detection[1] * frameHeight)
+                        width = int(detection[2] * frameWidth)
+                        height = int(detection[3] * frameHeight)
 
                         # use the center (x, y)-coordinates to derive the top
                         # and and left corner of the bounding box
-                        x = int(centerX - (width / 2))
-                        y = int(centerY - (height / 2))
+                        left = int(centerX - (width / 2))
+                        top = int(centerY - (height / 2))
 
                         # update our list of bounding box coordinates,
                         # confidences, and class IDs
-                        boxes.append([x, y, int(width), int(height)])
+                        boxes.append([left, top, width, height])
                         confidences.append(float(confidence))
                         classIDs.append(classID)
 
@@ -141,8 +149,8 @@ while True:
                     # draw a bounding box rectangle and label on the frame
                     color = [int(c) for c in COLORS[classIDs[i]]]
                     cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-                    text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
-                    cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                    label = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
+                    cv2.putText(frame, label, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
             cv2.imshow('frame', frame)
 
@@ -181,6 +189,7 @@ fps.stop()
 print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
 print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 print("[INFO] cleaning up...")
+
 cap.release()
 writer.release()
 cv2.destroyAllWindows()
