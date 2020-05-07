@@ -1,5 +1,6 @@
 import numpy as np
 import imutils
+from PIL import Image
 from imutils.video import FPS
 import time
 import cv2
@@ -39,7 +40,8 @@ def getOutputsNames(net):
 
 # initialize the video stream, pointer to output video file, and
 # frame dimensions
-cap = cv2.VideoCapture("videos/test.mov")
+origin_video = "videos/test.mov"
+cap = cv2.VideoCapture(origin_video)
 writer = None
 (W, H) = (None, None)
 
@@ -64,7 +66,11 @@ def output(args):
     pass
 
 
-while True:
+scaling_factor = 0.5
+count = 0
+det_num = 0
+while (cap.isOpened()):
+    # while True:
     ret, frame = cap.read()
 
     if not ret:
@@ -74,6 +80,7 @@ while True:
         break
 
     if ret == True:
+        count = count + 1
         # if the frame dimensions are empty, grab them
         if W is None or H is None:
             (H, W) = frame.shape[:2]
@@ -154,6 +161,20 @@ while True:
 
             cv2.imshow('frame', frame)
 
+
+        #
+        # if count == 1:
+        #     count = 0
+        #     frame = cv2.resize(frame, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+        #     img_arr = Image.fromarray(frame)
+        #     img_goal = img_arr.save(video_tmp)
+        #     r = detect(net, meta, video_tmp)
+        #     print r  # 存取检测结果  list类型
+        #     # display the rectangle of the objects in window
+        #     det_num = det_num + 1  # 检测照片计数
+        #     showPicResult(video_tmp, video_temp_result, det_num)  # ubuntu系统显示opencv
+        # else:
+        #     continue
 
         # layerOutputs = net.forward(ln)
         outs = net.forward(getOutputsNames(net))
