@@ -93,6 +93,27 @@ def postprocess(frame, outs):
         height = box[3]
         drawPred(classIds[i], confidences[i], left, top, left + width, top + height)
 
+        # def showPicResult(image,peoplecar，outimage):
+        #     img = cv2.imread(image)
+        #     out_img =outimage
+        #     cv2.imwrite(out_img, img)
+        #     for i in range(len(peoplecar)):
+        #         x1=peoplecar[i][2][0]-peoplecar[i][2][2]/2
+        #         y1=peoplecar[i][2][1]-peoplecar[i][2][3]/2
+        #         x2=peoplecar[i][2][0]+peoplecar[i][2][2]/2
+        #         y2=peoplecar[i][2][1]+peoplecar[i][2][3]/2
+        #         im = cv2.imread(out_img)
+        #         cv2.rectangle(im,(int(x1),int(y1)),(int(x2),int(y2)),(255,255,0),3)
+        #         text = listpeoplecar[i][0]
+        #         if(text=="people"):
+        #             carcol=(55, 55, 255)
+        #         else:
+        #             carcol = (255, 55, 55)
+        #         cv2.putText(im, text, (int(x1), int(y1)), cv2.FONT_HERSHEY_SIMPLEX,
+        #                     0.8, carcol, 1, cv2.LINE_AA)
+        #         #This is a method that works well.
+        #         cv2.imwrite(out_img, im)
+
 
 # Process inputs
 winName = 'Deep learning object detection in OpenCV'
@@ -121,6 +142,33 @@ else:
 if (not args.image):
     vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M', 'J', 'P', 'G'), 30,
                                 (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)), round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
+# else :
+#     filenames = os.listdir(picDir)
+#     i = 0
+#     num = 0
+#     people_num = 0
+#
+#     people = "people"
+#
+#     for name in filenames:
+#         filename = os.path.join(picDir, name)
+#         # print(filename)
+#         listpeoplecar = detect(net, meta, filename)
+#         print(listpeoplecar)
+#         i = i + 1
+#         # save_picpath = out_img+str(filename).split("/")[-1].split(".")[0] + ".png"
+#         out_img = out_img1 + str(i) + '.png'
+#         showPicResult(filename, listpeoplecar，out_img)
+#
+#         for item in listpeoplecar:
+#             # print(item)
+#             car_num = car_num + item[0].count(car)  # car个数
+#             people_num = people_num + item[0].count(people)  # people个数
+#             num = num + 1  # 目标个数
+#
+#     print('people个数: ' + str(people_num))
+#     print('共检测出目标个数: ' + str(num))
+#     print('共检测照片个数:' + str(i))
 
 while cv.waitKey(1) < 0:
 
