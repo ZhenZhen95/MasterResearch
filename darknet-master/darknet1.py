@@ -176,7 +176,7 @@ def mode_select(state):
             # video = "http://admin:admin@192.168.0.13:8081"
             video = 0
         elif state == 'video':
-            video = '../test/test_video/video7.mp4'
+            video = 'test.mov'
         cap = cv2.VideoCapture(video)
     else:
         cap = 1
@@ -232,10 +232,10 @@ def save_video(state, out_video):
 
 
 def load_model():
-    net1 = load_net(b"/home/dengjie/dengjie/project/detection/from_darknet/cfg/yolov3.cfg",
-                    b"/home/dengjie/dengjie/project/detection/from_darknet/cfg/yolov3.weights",
+    net1 = load_net(b"/cfg/yolov3.cfg",
+                    b"/cfg/yolov3.weights",
                     0)
-    meta1 = load_meta("/home/dengjie/dengjie/project/detection/from_darknet/cfg/coco.data".encode('utf-8'))
+    meta1 = load_meta("/cfg/coco.data".encode('utf-8'))
     label_path = '../data/coco.names'
     LABELS1 = open(label_path).read().strip().split("\n")
     num_class = len(LABELS1)
