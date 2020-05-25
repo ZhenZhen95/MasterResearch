@@ -1,10 +1,11 @@
 from ctypes import *
+import math
 import random
 import cv2
 import numpy as np
 import os
 import time
-
+import darknet
 
 def sample(probs):
     s = sum(probs)
@@ -232,26 +233,17 @@ def save_video(state, out_video):
 
 
 def load_model():
-    net1 = load_net(b"/cfg/yolov3.cfg",
-                    b"/cfg/yolov3.weights",
+    net1 = load_net(b"/cfg/yolov4.cfg",
+                    b"/yolov4.weights",
                     0)
-    meta1 = load_meta("/cfg/coco.data".encode('utf-8'))
-    label_path = '../data/coco.names'
+    meta1 = load_meta("./cfg/coco.data".encode('utf-8'))
+    label_path = './cfg/coco.names'
     LABELS1 = open(label_path).read().strip().split("\n")
     num_class = len(LABELS1)
     return net1, meta1, LABELS1, num_class
 
 
 def random_color(num):
-    """
-    colorArr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
-    color = ""
-    for i in range(6):
-        color += colorArr[random.randint(0, 14)]
-    return "#" + color
-    color = np.random.randint(0, 256, size=[1, 3])
-    color = color.tolist()[0]
-    """
     # 为每个类别的边界框随机匹配相应颜色
     np.random.seed(80)
     COLORS = np.random.randint(0, 256, size=(num, 3), dtype='uint8')  #
@@ -260,7 +252,7 @@ def random_color(num):
 
 if __name__ == "__main__":
     k = 0
-    path = '../test/test_pic'
+    path = '../result/test/test_pic'
     frame_path = '../result/result_frame'
 
     state = 'video'  # 检测模式选择,state = 'video','picture','real_time'
