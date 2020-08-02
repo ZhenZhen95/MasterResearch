@@ -22,8 +22,8 @@ with open(classesFile, 'rt') as f:
     classes = f.read().rstrip('\n').split('\n')
 
 # Give the configuration and weight files for the model and load the network using them.
-modelWeights = "yolo-coco/yolov3-person_100000.weights"
-modelConfiguration = "yolo-coco/yolov3.cfg"
+modelWeights = "yolo-coco/yolov4-tiny.weights"
+modelConfiguration = "yolo-coco/yolov4.cfg"
 
 net = cv.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
@@ -65,12 +65,12 @@ def postprocess(frame, outs):
     classIds = []
     confidences = []
     boxes = []
-    for out in outs:
+    for out in outs:  # 遍历每的图层的输出
         for detection in out:
             scores = detection[5:]
             classId = np.argmax(scores)
             confidence = scores[classId]
-            if confidence > confThreshold:
+            if confidence > confThreshold:  # 过滤
                 center_x = int(detection[0] * frameWidth)
                 center_y = int(detection[1] * frameHeight)
                 width = int(detection[2] * frameWidth)
@@ -80,10 +80,11 @@ def postprocess(frame, outs):
                 classIds.append(classId)
                 confidences.append(float(confidence))
                 boxes.append([left, top, width, height])
+                print(classId, confidence, boxes)
 
-    # Perform nms to eliminate redundant overlapping boxes with
-    # lower confidences.
+    # NMS消除置信度底的冗余叠框
     indices = cv.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
+    print(indices)
     for i in indices:
         i = i[0]
         box = boxes[i]
@@ -91,7 +92,8 @@ def postprocess(frame, outs):
         top = box[1]
         width = box[2]
         height = box[3]
-        drawPred(classIds[i], confidences[i], left, top, left + width, top + height)
+        if classId == 0:
+            drawPred(classIds[i], confidences[i], left, top, left + width, top + height)
 
         # def showPicResult(image,peoplecar，outimage):
         #     img = cv2.imread(image)
@@ -119,7 +121,7 @@ def postprocess(frame, outs):
 winName = 'Deep learning object detection in OpenCV'
 cv.namedWindow(winName, cv.WINDOW_NORMAL)
 
-outputFile = "yolo_out_py.avi"
+outputFile = "output/yolo_out_py.avi"
 if args.image:
     # Open the image file
     if not os.path.isfile(args.image):
@@ -196,11 +198,12 @@ while cv.waitKey(1) < 0:
     # and the timings for each of the layers(in layersTimes)
     t, _ = net.getPerfProfile()
     label = 'Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency())
+    # print(label)
     cv.putText(frame, label, (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
     # Write the frame with the detection boxes
-    if (args.image):
-        cv.imwrite(outputFile, frame.astype(np.uint8));
+    if args.image:
+        cv.imwrite(outputFile, frame.astype(np.uint8))
     else:
         vid_writer.write(frame.astype(np.uint8))
     cv.imshow(winName, frame)
