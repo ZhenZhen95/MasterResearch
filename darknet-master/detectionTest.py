@@ -207,19 +207,19 @@ def find_object_in_picture(ret, img):
 def save_video(state, out_video):
     if state == 'video':
         if out_video:
-            img = cv2.imread('../result/result_frame/result_frame_0.jpg', 1)
+            img = cv2.imread('./result/frame/result_frame_0.jpg', 1)
             isColor = 1
             FPS = 20.0
             frameWidth = img.shape[1]
             frameHeight = img.shape[0]
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            out = cv2.VideoWriter('../result/result_video/result_video.avi', fourcc, FPS,
+            out = cv2.VideoWriter('./result/video/result_video.avi', fourcc, FPS,
                                   (frameWidth, frameHeight), isColor)
             list = os.listdir(frame_path)
             print('the number of video frames is', len(list))
             for i in range(len(list)):
                 frame = cv2.imread(
-                    '../result/result_frame/result_frame_%d.jpg' % i, 1)
+                    './result/frame/result_frame_%d.jpg' % i, 1)
                 out.write(frame)
                 if cv2.waitKey(25) & 0xFF == ord('q'):
                     break
@@ -252,8 +252,8 @@ def random_color(num):
 
 if __name__ == "__main__":
     k = 0
-    path = '../result/test/test_pic'
-    frame_path = '../result/result_frame'
+    path = './result/test/test_pic'
+    frame_path = './result/frame'
 
     state = 'video'  # 检测模式选择,state = 'video','picture','real_time'
 
@@ -282,7 +282,7 @@ if __name__ == "__main__":
                 sum_t += t
                 print('process ' + j + ' spend %.5fs' % t)
                 cv2.imshow("img", img)
-                cv2.imwrite('../result/result_pic/result_%d.jpg' % k, image)
+                cv2.imwrite('../result/pic/result_%d.jpg' % k, image)
                 k += 1
                 cv2.waitKey()
                 cv2.destroyAllWindows()
@@ -311,7 +311,7 @@ if __name__ == "__main__":
                     sum_fps += fps
                 sum_v += t_v
                 if state == 'video':
-                    cv2.imwrite('../result/result_frame/result_frame_%d.jpg' % k, image)
+                    cv2.imwrite('./result/frame/result_frame_%d.jpg' % k, image)
                     k += 1
             else:  # 视频播放结束
                 print('Total processing time is %.5fs' % sum_v)

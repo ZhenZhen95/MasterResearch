@@ -11,15 +11,16 @@ nmsThreshold = 0.4
 inpWidth = 416
 inpHeight = 416
 
-labelsPath = "yolo-coco/coco.names"
+labelsPath = "yolo-coco/person.names"
 LABELS = open(labelsPath).read().strip().split("\n")
 
 # 初始化颜色表示类
 np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(len(LABELS), 3), dtype="uint8")
 
-weightsPath = "yolo-coco/yolov4-tiny.weights"
-configPath = "yolo-coco/yolov4.cfg"
+# weightsPath = "yolo-coco/yolov4-tiny.weights"
+weightsPath = "yolo-coco/person.weights"
+configPath = "yolo-coco/yolov4-tiny.cfg"
 
 # 加载数据集上训练的yolo对象检测
 print("[INFO] loading YOLO from disk...")
@@ -73,163 +74,167 @@ def output(args):
 
 
 # classIn = input("Please enter the class:")
-def on_press(key):
-    print('special key {0} pressed'.format(key))
-    classIn = input("Please enter the class:")
+# def on_press(key):
+#     print('special key {0} pressed'.format(key))
+#     classIn = input("Please enter the class:")
 
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    writer = None
-    (W, H) = (None, None)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+writer = None
+(W, H) = (None, None)
 
-    # 确定视频文件中的总帧数
-    try:
-        prop = cv2.cv.CV_CAP_PROP_FRAME_COUNT if imutils.is_cv2() \
-            else cv2.CAP_PROP_FRAME_COUNT
-        total = int(cap.get(prop))
-        print("[INFO] {} total frames in video".format(total))
-        time.sleep(2.0)
-        fps = FPS().start()
-    except:
-        print("[INFO] could not determine # of frames in video")
-        print("[INFO] no approx. completion time can be provided")
-        total = -1
+# 确定视频文件中的总帧数
+try:
+    prop = cv2.cv.CV_CAP_PROP_FRAME_COUNT if imutils.is_cv2() \
+        else cv2.CAP_PROP_FRAME_COUNT
+    total = int(cap.get(prop))
+    print("[INFO] {} total frames in video".format(total))
+    time.sleep(2.0)
+    fps = FPS().start()
+except:
+    print("[INFO] could not determine # of frames in video")
+    print("[INFO] no approx. completion time can be provided")
+    total = -1
 
-    while True:
-        print(1)
-        ret, frame = cap.read()  # 读取某一帧
+while True:
+    # print(1)
+    ret, frame = cap.read()  # 读取某一帧
 
-        if not ret:
-            print("Done processing !!!")
-            print("Output file is stored as", output)
-            cv2.waitKey(3000)
+    if not ret:
+        print("Done processing !!!")
+        print("Output file is stored as", output)
+        cv2.waitKey(3000)
+        break
+
+    if ret == True:
+        # print(2)
+        # count = count + 1
+        # 抓取为空的帧
+        if W is None or H is None:
+            (H, W) = frame.shape[:2]
+
+        # 从输入帧构造一个blob，然后YOLO对象检测器执行前向传递，提供边界框和相关的概率
+        blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (inpWidth, inpHeight), swapRB=True, crop=False)
+        net.setInput(blob)
+        start = time.time()
+
+        def postprocess(frame, outs):
+            isframe = False
+            # print(3)
+            frameHeight = frame.shape[0]
+            frameWidth = frame.shape[1]
+
+            # 初始化检测边框，置信度和类的列表
+            boxes = []
+            confidences = []
+            classIDs = []
+
+            # 遍历每个图层的输出
+            for output in outs:
+                # 遍历每个检测
+                for detection in output:
+                    # 提取当前物体检测的类别ID和置信度
+                    scores = detection[5:]
+                    classID = np.argmax(scores)
+                    confidence = scores[classID]
+
+                    # 检测到的概率大于最小概率 过滤弱预测
+                    if confidence > confThreshold:
+                        # box = detection[0:4] * np.array([W, H, W, H])
+                        # (centerX, centerY, width, height) = box.astype("int")
+
+                        centerX = int(detection[0] * frameWidth)
+                        centerY = int(detection[1] * frameHeight)
+                        width = int(detection[2] * frameWidth)
+                        height = int(detection[3] * frameHeight)
+
+                        left = int(centerX - (width / 2))
+                        top = int(centerY - (height / 2))
+
+                        # 更新边界框坐标、置信度、类
+                        boxes.append([left, top, width, height])
+                        confidences.append(float(confidence))
+                        classIDs.append(classID)
+
+            # 非最大抑制来抑制弱重叠边界框
+            idxs = cv2.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
+
+            # def on_press(key):
+            #     print('special key {0} pressed'.format(key))
+            #     classIn = input("Please enter the class:")
+            # 确保至少存在一个检测
+
+            if len(idxs) > 0:
+                # 循环索引
+                for i in idxs.flatten():
+                    # 边框坐标
+                    (x, y) = (boxes[i][0], boxes[i][1])
+                    (w, h) = (boxes[i][2], boxes[i][3])
+
+                    if i < 3:
+                        # print(on_press(classIn))
+                        print(LABELS[classIDs[i]])
+                        # 绘制边框和标签
+                        color = [int(c) for c in COLORS[classIDs[i]]]
+                        cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+                        label = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
+                        cv2.putText(frame, label, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        cv2.imshow('frame', frame)
+                        isframe = True
+            return isframe
+
+        # layerOutputs = net.forward(ln)
+        outs = net.forward(getOutputsNames(net))
+        isframe = postprocess(frame, outs)
+
+        end = time.time()
+
+        if cv2.waitKey(30) & 0xFF == ord('q'):
             break
+        print(isframe)
 
-        if ret == True:
-            print(2)
-            # count = count + 1
-            # 抓取为空的帧
-            if W is None or H is None:
-                (H, W) = frame.shape[:2]
+        if writer is None:  # 初始化
+            fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+            writer = cv2.VideoWriter("output/yolo_out2.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
 
-            # 从输入帧构造一个blob，然后YOLO对象检测器执行前向传递，提供边界框和相关的概率
-            blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (inpWidth, inpHeight), swapRB=True, crop=False)
-            net.setInput(blob)
-            start = time.time()
-
-            def postprocess(frame, outs):
-                print(3)
-                frameHeight = frame.shape[0]
-                frameWidth = frame.shape[1]
-
-                # 初始化检测边框，置信度和类的列表
-                boxes = []
-                confidences = []
-                classIDs = []
-
-                # 遍历每个图层的输出
-                for output in outs:
-                    # 遍历每个检测
-                    for detection in output:
-                        # 提取当前物体检测的类别ID和置信度
-                        scores = detection[5:]
-                        classID = np.argmax(scores)
-                        confidence = scores[classID]
-
-                        # 检测到的概率大于最小概率 过滤弱预测
-                        if confidence > confThreshold:
-                            # box = detection[0:4] * np.array([W, H, W, H])
-                            # (centerX, centerY, width, height) = box.astype("int")
-
-                            centerX = int(detection[0] * frameWidth)
-                            centerY = int(detection[1] * frameHeight)
-                            width = int(detection[2] * frameWidth)
-                            height = int(detection[3] * frameHeight)
-
-                            left = int(centerX - (width / 2))
-                            top = int(centerY - (height / 2))
-
-                            # 更新边界框坐标、置信度、类
-                            boxes.append([left, top, width, height])
-                            confidences.append(float(confidence))
-                            classIDs.append(classID)
-
-                # 非最大抑制来抑制弱重叠边界框
-                idxs = cv2.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
-
-                # def on_press(key):
-                #     print('special key {0} pressed'.format(key))
-                #     classIn = input("Please enter the class:")
-                # 确保至少存在一个检测
-                if len(idxs) > 0:
-                    # 循环索引
-                    for i in idxs.flatten():
-                        # 边框坐标
-                        (x, y) = (boxes[i][0], boxes[i][1])
-                        (w, h) = (boxes[i][2], boxes[i][3])
-
-                        if LABELS[classIDs[i]] == 'person':
-                            # print(on_press(classIn))
-                            print(LABELS[classIDs[i]])
-                            # 绘制边框和标签
-                            color = [int(c) for c in COLORS[classIDs[i]]]
-                            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-                            label = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
-                            cv2.putText(frame, label, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
-                cv2.imshow('frame', frame)
-
-            # layerOutputs = net.forward(ln)
-            outs = net.forward(getOutputsNames(net))
-            postprocess(frame, outs)
-
-            end = time.time()
-
-            if cv2.waitKey(30) & 0xFF == ord('q'):
-                break
-
-            if writer is None:
-                # 初始化
-                fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-                writer = cv2.VideoWriter("output/video.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
-
-                # 处理单帧
-                if total > 0:
-                    elap = (end - start)
-                    print("[INFO] single frame took {:.4f} seconds".format(elap))
-                    print("[INFO] estimated total time to finish: {:.4f}".format(elap * total))
-
-            # 更新fps数
+        # 更新fps数
+        if isframe:
             fps.update()
 
             # 输出帧写入磁盘
             writer.write(frame)
 
-        else:
-            break
+            # 处理单帧
+            if total > 0:
+                elap = (end - start)
+                print("[INFO] single frame took {:.4f} seconds".format(elap))
+                print("[INFO] estimated total time to finish: {:.4f}".format(elap * total))
 
-    # 停止计时器并显示fps信息
-    fps.stop()
-    print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-    print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-    print("[INFO] cleaning up...")
+    else:
+        break
 
-    cap.release()
-    writer.release()
-    cv2.destroyAllWindows()
+# 停止计时器并显示fps信息
+fps.stop()
+print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+print("[INFO] cleaning up...")
 
-
-def on_release(key):
-    print('{0} released'.format(key))
-    if key == keyboard.Key.esc:
-        # Stop listener
-        return False
+cap.release()
+writer.release()
+cv2.destroyAllWindows()
 
 
-keyboard_listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-lst = [keyboard_listener]
-
-for t in lst:
-    t.start()
-
-for t in lst:
-    t.join()
+# def on_release(key):
+#     print('{0} released'.format(key))
+#     if key == keyboard.Key.esc:
+#         # Stop listener
+#         return False
+#
+#
+# keyboard_listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+# lst = [keyboard_listener]
+#
+# for t in lst:
+#     t.start()
+#
+# for t in lst:
+#     t.join()

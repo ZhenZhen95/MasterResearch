@@ -1,6 +1,7 @@
 from tkinter import Tk, Frame
 # import keyboard
 from pynput import keyboard
+import os
 
 # root = Tk()
 
@@ -35,12 +36,21 @@ from pynput import keyboard
 #     keyboard.add_hotkey('enter', test1)
 #     keyboard.wait()  # 阻塞进程
 
+classIn = 0
+
 
 def on_press(key):
-    try:
-        print('alphanumeric key {0} pressed'.format(key.char))
-    except AttributeError:
-        print('special key {0} pressed'.format(key))
+    global classIn
+    # print(str(key))
+    if str(key) == 'Key.ctrl_l':
+        classIn = int(input("input:"))
+        print(classIn)
+        if classIn == 1:
+            os.system("yolo_video.py &")
+        elif classIn == 2:
+            os.system("video_yolo.py &")
+        elif classIn == 3:
+            os.system("yolo_video2.py &")
 
 
 def on_release(key):

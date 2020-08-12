@@ -1,3 +1,4 @@
+import cv2
 import cv2 as cv
 import argparse
 import sys
@@ -16,14 +17,14 @@ parser.add_argument('--video', help='Path to video file.')
 args = parser.parse_args()
 
 # Load names of classes
-classesFile = "yolo-coco/coco.names"
+classesFile = "yolo-coco/chair.names"
 classes = None
 with open(classesFile, 'rt') as f:
     classes = f.read().rstrip('\n').split('\n')
 
 # Give the configuration and weight files for the model and load the network using them.
-modelWeights = "yolo-coco/yolov4-tiny.weights"
-modelConfiguration = "yolo-coco/yolov4.cfg"
+modelWeights = "yolo-coco/chair.weights"
+modelConfiguration = "yolo-coco/yolov4-tiny.cfg"
 
 net = cv.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
@@ -121,7 +122,7 @@ def postprocess(frame, outs):
 winName = 'Deep learning object detection in OpenCV'
 cv.namedWindow(winName, cv.WINDOW_NORMAL)
 
-outputFile = "output/yolo_out_py.avi"
+outputFile = "output/yolo_out_py0.avi"
 if args.image:
     # Open the image file
     if not os.path.isfile(args.image):
@@ -144,33 +145,6 @@ else:
 if (not args.image):
     vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M', 'J', 'P', 'G'), 30,
                                 (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)), round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
-# else :
-#     filenames = os.listdir(picDir)
-#     i = 0
-#     num = 0
-#     people_num = 0
-#
-#     people = "people"
-#
-#     for name in filenames:
-#         filename = os.path.join(picDir, name)
-#         # print(filename)
-#         listpeoplecar = detect(net, meta, filename)
-#         print(listpeoplecar)
-#         i = i + 1
-#         # save_picpath = out_img+str(filename).split("/")[-1].split(".")[0] + ".png"
-#         out_img = out_img1 + str(i) + '.png'
-#         showPicResult(filename, listpeoplecar，out_img)
-#
-#         for item in listpeoplecar:
-#             # print(item)
-#             car_num = car_num + item[0].count(car)  # car个数
-#             people_num = people_num + item[0].count(people)  # people个数
-#             num = num + 1  # 目标个数
-#
-#     print('people个数: ' + str(people_num))
-#     print('共检测出目标个数: ' + str(num))
-#     print('共检测照片个数:' + str(i))
 
 while cv.waitKey(1) < 0:
 

@@ -79,8 +79,9 @@ def YOLO():
                     pass
         except Exception:
             pass
-    # cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture("test.mov")
+
+    cap = cv2.VideoCapture(0) # webcam摄像头
+    # cap = cv2.VideoCapture("test.mov")  # 视频路径
     cap.set(3, 1280)
     cap.set(4, 720)
     out = cv2.VideoWriter(
