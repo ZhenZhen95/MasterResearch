@@ -11,7 +11,7 @@ nmsThreshold = 0.4
 inpWidth = 416
 inpHeight = 416
 
-labelsPath = "yolo-coco/person.names"
+labelsPath = "yolo-coco/person/person.names"
 LABELS = open(labelsPath).read().strip().split("\n")
 
 # 初始化颜色表示类
@@ -19,8 +19,8 @@ np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(len(LABELS), 3), dtype="uint8")
 
 # weightsPath = "yolo-coco/yolov4-tiny.weights"
-weightsPath = "yolo-coco/person.weights"
-configPath = "yolo-coco/yolov4-tiny.cfg"
+weightsPath = "yolo-coco/person/person.weights"
+configPath = "yolo-coco/person/yolov4-tiny.cfg"
 
 # 加载数据集上训练的yolo对象检测
 print("[INFO] loading YOLO from disk...")

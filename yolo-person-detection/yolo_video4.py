@@ -149,8 +149,10 @@ def detecting():
                         (x, y) = (boxes[i][0], boxes[i][1])
                         (w, h) = (boxes[i][2], boxes[i][3])
 
+                        # print(my_class)
+
                         if LABELS[classIDs[i]] == my_class:
-                            # print(on_press(classIn))
+                            print(on_press(classIn))
                             print(LABELS[classIDs[i]])
                             # 绘制边框和标签
                             color = [int(c) for c in COLORS[classIDs[i]]]

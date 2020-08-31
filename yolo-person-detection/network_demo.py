@@ -4,7 +4,7 @@
 import socket
 
 # 开启ip和端口
-ip_port = ('192.168.1.104', 3295)
+ip_port = ('157.19.105.184', 3295)
 # 生成句柄
 web = socket.socket()
 # 绑定端口

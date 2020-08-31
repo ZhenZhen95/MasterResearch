@@ -1,26 +1,26 @@
-from pynput import keyboard
-# import keyboard
 import numpy as np
 import imutils
 from imutils.video import FPS
 import time
 import cv2
+import numpy
+import socket
+import threading
+import struct
 
 confThreshold = 0.5
 nmsThreshold = 0.4
 inpWidth = 416
 inpHeight = 416
 
-labelsPath = "yolo-coco/chair/chair.names"
+labelsPath = "yolo-coco/person/person.names"
 LABELS = open(labelsPath).read().strip().split("\n")
 
 # 初始化颜色表示类
 np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(len(LABELS), 3), dtype="uint8")
-
-# weightsPath = "yolo-coco/yolov4-tiny.weights"
-weightsPath = "yolo-coco/chair/chair.weights"
-configPath = "yolo-coco/chair/yolov4-tiny.cfg"
+weightsPath = "yolo-coco/person/person.weights"
+configPath = "yolo-coco/person/yolov4-tiny.cfg"
 
 # 加载数据集上训练的yolo对象检测
 print("[INFO] loading YOLO from disk...")
@@ -42,7 +42,7 @@ def output(args):
     pass
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 writer = None
 (W, H) = (None, None)
 
@@ -122,11 +122,6 @@ while True:
             # 非最大抑制来抑制弱重叠边界框
             idxs = cv2.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
 
-            # def on_press(key):
-            #     print('special key {0} pressed'.format(key))
-            #     classIn = input("Please enter the class:")
-            # 确保至少存在一个检测
-
             if len(idxs) > 0:
                 # 循环索引
                 for i in idxs.flatten():
@@ -154,11 +149,11 @@ while True:
 
         if cv2.waitKey(30) & 0xFF == ord('q'):
             break
-        # print(isframe)
+        print(isframe)
 
         if writer is None:  # 初始化
             fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-            writer = cv2.VideoWriter("output/yolo_out1.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
+            writer = cv2.VideoWriter("output/yolo_out2.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
 
         # 更新fps数
         if isframe:

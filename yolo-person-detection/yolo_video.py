@@ -17,14 +17,14 @@ parser.add_argument('--video', help='Path to video file.')
 args = parser.parse_args()
 
 # Load names of classes
-classesFile = "yolo-coco/chair.names"
+classesFile = "yolo-coco/chair/chair.names"
 classes = None
 with open(classesFile, 'rt') as f:
     classes = f.read().rstrip('\n').split('\n')
 
 # Give the configuration and weight files for the model and load the network using them.
-modelWeights = "yolo-coco/chair.weights"
-modelConfiguration = "yolo-coco/yolov4-tiny.cfg"
+modelWeights = "yolo-coco/chair/chair.weights"
+modelConfiguration = "yolo-coco/chair/yolov4-tiny.cfg"
 
 net = cv.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
@@ -95,27 +95,6 @@ def postprocess(frame, outs):
         height = box[3]
         if classId == 0:
             drawPred(classIds[i], confidences[i], left, top, left + width, top + height)
-
-        # def showPicResult(image,peoplecar，outimage):
-        #     img = cv2.imread(image)
-        #     out_img =outimage
-        #     cv2.imwrite(out_img, img)
-        #     for i in range(len(peoplecar)):
-        #         x1=peoplecar[i][2][0]-peoplecar[i][2][2]/2
-        #         y1=peoplecar[i][2][1]-peoplecar[i][2][3]/2
-        #         x2=peoplecar[i][2][0]+peoplecar[i][2][2]/2
-        #         y2=peoplecar[i][2][1]+peoplecar[i][2][3]/2
-        #         im = cv2.imread(out_img)
-        #         cv2.rectangle(im,(int(x1),int(y1)),(int(x2),int(y2)),(255,255,0),3)
-        #         text = listpeoplecar[i][0]
-        #         if(text=="people"):
-        #             carcol=(55, 55, 255)
-        #         else:
-        #             carcol = (255, 55, 55)
-        #         cv2.putText(im, text, (int(x1), int(y1)), cv2.FONT_HERSHEY_SIMPLEX,
-        #                     0.8, carcol, 1, cv2.LINE_AA)
-        #         #This is a method that works well.
-        #         cv2.imwrite(out_img, im)
 
 
 # Process inputs
