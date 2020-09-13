@@ -4,7 +4,7 @@ import cv2
 
 
 # load the COCO class labels our YOLO model was trained on
-labelsPath = "yoloPersonOnly/personOnly.names"
+labelsPath = "yolo-coco/person/person.names"
 LABELS = open(labelsPath).read().strip().split("\n")
 
 # initialize a list of colors to represent each possible class label
@@ -12,15 +12,15 @@ np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(len(LABELS), 3), dtype="uint8")
 
 # derive the paths to the YOLO weights and model configuration
-weightsPath = "yoloPersonOnly/yolov3Person.weights"
-configPath = "yoloPersonOnly/yolov3Person.cfg"
+weightsPath = "yolo-coco/person/person.weights"
+configPath = "yolo-coco/person/yolov4-tiny.cfg"
 
 # load our YOLO object detector trained on COCO dataset (80 classes)
 print("[INFO] loading YOLO from disk...")
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 
 # load our input image and grab its spatial dimensions
-image = cv2.imread("images/soccer.jpg")
+image = cv2.imread("videos/person.jpg")
 (H, W) = image.shape[:2]
 
 # determine only the *output* layer names that we need from YOLO

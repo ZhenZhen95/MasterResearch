@@ -31,11 +31,12 @@ net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 
 # 初始化视频流，输出视频文件的, 指向输出视频文件的指针和帧大小
 # origin_video = "videos/test.mov"
-print('init video stream...')
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+# print('init video stream...')
+# cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture("videos/test.mov")
 writer = None
 W, H = None, None
-classIn = 'chair'
+classIn = 'car'
 lock = Lock()
 
 # 确定视频文件中的总帧数
@@ -174,7 +175,7 @@ def detecting():
             if writer is None:
                 # 初始化
                 fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-                writer = cv2.VideoWriter("output/video.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
+                writer = cv2.VideoWriter("output/video4.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
 
                 # 处理单帧
                 if total > 0:

@@ -47,7 +47,7 @@ class Camera_Connect_Object:
                         self.image = cv2.imdecode(data, 1)  # 图像解码
                         cv2.imshow(self.name, self.image)  # 展示图片
                 except:
-                    pass;
+                    pass
                 finally:
                     if (cv2.waitKey(10) == 27):  # 每10ms刷新一次图片，按‘ESC’（27）退出
                         self.client.close()

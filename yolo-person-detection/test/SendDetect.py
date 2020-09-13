@@ -38,6 +38,7 @@ print(re, type(re))
 object_type = str(re[0], encoding='utf-8')
 print(object_type, type(object_type))
 
+
 # ln = net.getLayerNames()
 # ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
@@ -50,41 +51,6 @@ def output(args):
     pass
 
 
-# scaling_factor = 0.5
-# count = 0
-# det_num = 0
-# def test1():
-#     print("Is 1")
-#
-#
-# keyboard.add_hotkey('enter', test1)
-# keyboard.wait()
-
-
-# 初始化视频流，输出视频文件的, 指向输出视频文件的指针和帧大小
-# origin_video = "videos/test.mov"
-# cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-# writer = None
-# (W, H) = (None, None)
-#
-# # 确定视频文件中的总帧数
-# try:
-#     prop = cv2.cv.CV_CAP_PROP_FRAME_COUNT if imutils.is_cv2() \
-#         else cv2.CAP_PROP_FRAME_COUNT
-#     total = int(cap.get(prop))
-#     print("[INFO] {} total frames in video".format(total))
-#     time.sleep(2.0)
-#     fps = FPS().start()
-# except:
-#     print("[INFO] could not determine # of frames in video")
-#     print("[INFO] no approx. completion time can be provided")
-#     total = -1
-
-
-# classIn = input("Please enter the class:")
-# def on_press(key):
-#     print('special key {0} pressed'.format(key))
-#     classIn = input("Please enter the class:")
 # cap = cv2.VideoCapture("videos/test.mov")
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 writer = None
@@ -125,6 +91,7 @@ while True:
         net.setInput(blob)
         start = time.time()
 
+
         def postprocess(frame, outs):
             isframe = False
             # print(3)
@@ -147,9 +114,6 @@ while True:
 
                     # 检测到的概率大于最小概率 过滤弱预测
                     if confidence > confThreshold:
-                        # box = detection[0:4] * np.array([W, H, W, H])
-                        # (centerX, centerY, width, height) = box.astype("int")
-
                         centerX = int(detection[0] * frameWidth)
                         centerY = int(detection[1] * frameHeight)
                         width = int(detection[2] * frameWidth)
@@ -166,10 +130,6 @@ while True:
             # 非最大抑制来抑制弱重叠边界框
             idxs = cv2.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
 
-            # def on_press(key):
-            #     print('special key {0} pressed'.format(key))
-            #     classIn = input("Please enter the class:")
-            # 确保至少存在一个检测
 
             if len(idxs) > 0:
                 # 循环索引
@@ -186,12 +146,13 @@ while True:
                         cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
                         label = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
                         cv2.putText(frame, label, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                        data = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 15])[1]
-                        print(data)
-                        ser.sendto(data, (re[1][0], 9999))
+                        # data = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 15])[1]
+                        # print(data)
+                        # ser.sendto(data, (re[1][0], 9999))
                         cv2.imshow('frame', frame)
                         isframe = True
             return isframe
+
 
         # layerOutputs = net.forward(ln)
         outs = net.forward(getOutputsNames(net))
@@ -209,6 +170,9 @@ while True:
 
         # 更新fps数
         if isframe:
+            data = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 15])[1]
+            print(data)
+            ser.sendto(data, (re[1][0], 9999))
             fps.update()
 
             # 输出帧写入磁盘
@@ -233,19 +197,3 @@ cap.release()
 writer.release()
 cv2.destroyAllWindows()
 
-
-# def on_release(key):
-#     print('{0} released'.format(key))
-#     if key == keyboard.Key.esc:
-#         # Stop listener
-#         return False
-#
-#
-# keyboard_listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-# lst = [keyboard_listener]
-#
-# for t in lst:
-#     t.start()
-#
-# for t in lst:
-#     t.join()

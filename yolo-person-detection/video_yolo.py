@@ -27,7 +27,7 @@ ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 # initialize the video stream, pointer to output video file, and
 # frame dimensions
-vs = cv2.VideoCapture("videos/test.mp4")
+vs = cv2.VideoCapture("videos/test.mov")
 writer = None
 (W, H) = (None, None)
 
@@ -128,7 +128,7 @@ while True:
     if writer is None:
         # initialize our video writer
         fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-        writer = cv2.VideoWriter("output/videos.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
+        writer = cv2.VideoWriter("output/videotest.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
 
         # some information on processing single frame
         if total > 0:

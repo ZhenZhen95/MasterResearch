@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 import imutils
 from imutils.video import FPS
@@ -44,20 +42,40 @@ def output(args):
     pass
 
 
-def SendVideo():
-    # 建立sock连接
-    # address要连接的服务器IP地址和端口号
-    address = ('157.19.105.184', 8022)
-    try:
-        # 建立socket对象
-        # socket.AF_INET：服务器之间网络通信
-        # socket.SOCK_STREAM：流式socket , for TCP
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # 开启连接
-        sock.connect(address)
-    except socket.error as msg:
-        print(msg)
-        sys.exit(1)
+class Carame_Accept_Object:
+    def __init__(self, S_addr_port=("157.19.105.184", 8880)):
+        self.resolution = (640, 480)  # 分辨率
+        self.img_fps = 15  # 每秒传输多少帧数
+        self.addr_port = S_addr_port
+        self.Set_Socket(self.addr_port)
+
+    # 设置套接字
+    def Set_Socket(self, S_addr_port):
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # 端口可复用
+        self.server.bind(S_addr_port)
+        self.server.listen(5)
+        # print("the process work in the port:%d" % S_addr_port[1])
+
+
+def check_option(object, client):
+    # 按格式解码，确定帧数和分辨率
+    info = struct.unpack('lhh', client.recv(8))
+    if info[0] > 888:
+        object.img_fps = int(info[0]) - 888  # 获取帧数
+        object.resolution = list(object.resolution)
+        # 获取分辨率
+        object.resolution[0] = info[1]
+        object.resolution[1] = info[2]
+        object.resolution = tuple(object.resolution)
+        return 1
+    else:
+        return 0
+
+
+def RT_Image(object, client, D_addr):
+    if (check_option(object, client) == 0):
+        return
     # cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     cap = cv2.VideoCapture(0)
     writer = None
@@ -74,25 +92,28 @@ def SendVideo():
         print("[INFO] could not determine # of frames in video")
         print("[INFO] no approx. completion time can be provided")
         total = -1
-
-    # 读取一帧图像，读取成功:ret=1 frame=读取到的一帧图像；读取失败:ret=0
-    ret, frame = cap.read()
-    # 压缩参数，后面cv2.imencode将会用到，对于jpeg来说，15代表图像质量，越高代表图像质量越好为 0-100，默认95
-    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 55]
-    while ret:
+    # 设置传送图像格式、帧数
+    img_param = [int(cv2.IMWRITE_JPEG_QUALITY), object.img_fps]
+    while True:
         # print(1)
         # ret, frame = cap.read()  # 读取某一帧
-        time.sleep(0.01)  # 推迟线程运行0.1s
+        time.sleep(0.1)  # 推迟线程运行0.1s
+        _, object.img = cap.read()
+        # if not ret:
+        #     print("Done processing !!!")
+        #     print("Output file is stored as", output)
+        #     cv2.waitKey(3000)
+        #     break
 
-        if ret == True:
+        if _ == True:
             # print(2)
             # count = count + 1
             # 抓取为空的帧
             if W is None or H is None:
-                (H, W) = frame.shape[:2]
+                (H, W) = object.img.shape[:2]
 
             # 从输入帧构造一个blob，然后YOLO对象检测器执行前向传递，提供边界框和相关的概率
-            blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (inpWidth, inpHeight), swapRB=True, crop=False)
+            blob = cv2.dnn.blobFromImage(object.img, 1 / 255.0, (inpWidth, inpHeight), swapRB=True, crop=False)
             net.setInput(blob)
             start = time.time()
 
@@ -158,7 +179,7 @@ def SendVideo():
 
             # layerOutputs = net.forward(ln)
             outs = net.forward(getOutputsNames(net))
-            isframe = postprocess(frame, outs)
+            isframe = postprocess(object.img, outs)
 
             end = time.time()
 
@@ -168,40 +189,36 @@ def SendVideo():
 
             # 判断目标
             if isframe:
-                print("开始传输...")
-                result, imgencode = cv2.imencode('.jpg', frame, encode_param)
-                # 建立矩阵
-                data = numpy.array(imgencode)
-                # 将numpy矩阵转换成字符形式，以便在网络中传输
-                stringData = data.tostring()
-                # 先发送要发送的数据的长度
-                # ljust() 方法返回一个原字符串左对齐,并使用空格填充至指定长度的新字符串
-                sock.send(str.encode(str(len(stringData)).ljust(16)))
-                # 发送数据
-                sock.send(stringData)
-                # 读取服务器返回值
-                # receive = sock.recv(1024)
-                # if len(receive):
-                #     print(str(receive, encoding='utf-8'))
-                # 读取下一帧图片
-                ret, frame = cap.read()
-                if cv2.waitKey(10) == 27:
-                    break
+                object.img = cv2.resize(object.img, object.resolution)  # 按要求调整图像大小(resolution必须为元组)
+                _, img_encode = cv2.imencode('.jpg', object.img, img_param)  # 按格式生成图片
+                img_code = numpy.array(img_encode)  # 转换成矩阵
+                object.img_data = img_code.tostring()  # 生成相应的字符串
+                try:
+                    # 按照相应的格式进行打包发送图片
+                    client.send(
+                        struct.pack("lhh", len(object.img_data), object.resolution[0],
+                                   object.resolution[1]) + object.img_data)
+                except:
+                    cap.release()  # 释放资源
+                    return
 
         else:
             break
 
     # 停止计时器并显示fps信息
     fps.stop()
-    # print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-    # print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-    # print("[INFO] cleaning up...")
+    print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
+    print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+    print("[INFO] cleaning up...")
 
-    cap.release()
+    # cap.release()
     writer.release()
-    sock.close()
     cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
-    SendVideo()
+    camera = Carame_Accept_Object()
+    while 1:
+        client, D_addr = camera.server.accept()
+        clientThread = threading.Thread(None, target=RT_Image, args=(camera, client, D_addr,))
+        clientThread.start()

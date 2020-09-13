@@ -158,7 +158,7 @@ while True:
 
         if writer is None:  # 初始化
             fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-            writer = cv2.VideoWriter("output/yolo_out1.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
+            writer = cv2.VideoWriter("output/out_chair.avi", fourcc, 30, (frame.shape[1], frame.shape[0]), True)
 
         # 更新fps数
         if isframe:
