@@ -43,7 +43,7 @@ def output(args):
 
 
 class Carame_Accept_Object:
-    def __init__(self, S_addr_port=("157.19.105.184", 8880)):
+    def __init__(self, S_addr_port=("157.19.105.183", 8880)):
         self.resolution = (640, 480)  # 分辨率
         self.img_fps = 15  # 每秒传输多少帧数
         self.addr_port = S_addr_port

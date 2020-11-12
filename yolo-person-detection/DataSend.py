@@ -47,7 +47,7 @@ def output(args):
 def SendVideo():
     # 建立sock连接
     # address要连接的服务器IP地址和端口号
-    address = ('157.19.105.184', 8022)
+    address = ('157.19.105.183', 8888)
     try:
         # 建立socket对象
         # socket.AF_INET：服务器之间网络通信

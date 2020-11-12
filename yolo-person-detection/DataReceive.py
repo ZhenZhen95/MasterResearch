@@ -6,7 +6,7 @@ import numpy
 
 def ReceiveVideo():
     # IP地址'0.0.0.0'为等待客户端连接
-    address = ('157.19.105.184', 8022)
+    address = ('157.19.105.183', 8022)
     # 建立socket对象，
     # socket.AF_INET：服务器之间网络通信
     # socket.SOCK_STREAM：流式socket , for TCP

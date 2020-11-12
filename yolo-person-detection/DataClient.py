@@ -12,7 +12,7 @@ import numpy
 class Camera_Connect_Object:
     def __init__(self, D_addr_port=None):
         if D_addr_port is None:
-            D_addr_port = ["157.19.105.184", 8880]
+            D_addr_port = ["157.19.105.183", 8880]
         self.resolution = [640, 480]
         self.addr_port = D_addr_port
         self.src = 888 + 15  # 双方确定传输帧数，（888）为校验值
@@ -61,7 +61,7 @@ class Camera_Connect_Object:
 
 if __name__ == '__main__':
     camera = Camera_Connect_Object()
-    camera.addr_port[0] = "157.19.105.184"
+    camera.addr_port[0] = "157.19.105.183"
     camera.addr_port = tuple(camera.addr_port)
     camera.Socket_Connect()
     camera.Get_Data(camera.interval)
